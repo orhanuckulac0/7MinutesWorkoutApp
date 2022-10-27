@@ -45,6 +45,7 @@
 
         <!--       use indeterminate when you do not know how long the operation will take -->
         <ProgressBar
+            android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="100dp"
             android:layout_height="100dp"
