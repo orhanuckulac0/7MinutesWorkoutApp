@@ -20,6 +20,9 @@ class ExerciseActivity : AppCompatActivity() {
     var tvTimer: TextView? = null
     var tvTitle: TextView? = null
     var ivExerciseImage: ImageView? = null
+    var tvNextExerciseLabel: TextView? = null
+    var tvNextExerciseName: TextView? = null
+
 
     private var exerciseList: ArrayList<ExerciseModel>? = null
     private var currentExercisePosition = -1  // when increment, it will be 0 which is the starting index of the ArrayList
@@ -37,10 +40,13 @@ class ExerciseActivity : AppCompatActivity() {
             onBackPressed()
         }
 
+        // set bindings
         progressBar = binding?.progressBar
         tvTimer = binding?.tvTimer
         tvTitle = binding?.tvTitle
         ivExerciseImage = binding?.ivExerciseImage
+        tvNextExerciseLabel = binding?.tvUpcomingLabel
+        tvNextExerciseName = binding?.tvUpcomingExerciseName
 
         exerciseList = Constants.defaultExerciseList()  // get all the exercises from Constants
 
@@ -55,11 +61,18 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setRestProgressBar(){
+        currentExercisePosition++  // increase current pos by 1 each turn
+
         progressBar?.progress = restProgress
         progressBar?.max = 10
-        ivExerciseImage?.visibility = View.GONE  // make the exercise image visibility GONE while resting
 
-        restTimer = object : CountDownTimer(11000, 1000) {
+        ivExerciseImage?.visibility = View.GONE  // make the exercise image visibility GONE while resting
+        tvNextExerciseName?.visibility = View.VISIBLE  // return back to visible on rest
+        tvNextExerciseLabel?.visibility = View.VISIBLE // return back to visible on rest
+
+        tvNextExerciseName?.text = exerciseList!![currentExercisePosition].getName()
+
+        restTimer = object : CountDownTimer(1100, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 11 - restProgress
@@ -69,7 +82,6 @@ class ExerciseActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 restProgress = 0
-                currentExercisePosition++
                 startExerciseTimer()
             }
         }.start()
@@ -77,14 +89,18 @@ class ExerciseActivity : AppCompatActivity() {
 
     private fun startExerciseTimer(){
         ivExerciseImage?.visibility = View.VISIBLE // make exercise image visible on exercise
+        tvNextExerciseName?.visibility = View.GONE  // make exercise title gone on exercise
+        tvNextExerciseLabel?.visibility = View.GONE  // make exercise name gone on exercise
+
         progressBar?.progress = restProgress
         progressBar?.max = 30
+
         val currentExercise = exerciseList!![currentExercisePosition]  // get current exercise
         tvTitle?.text = currentExercise.getName()  // use getter to get exercise name to display it
         ivExerciseImage?.setImageResource(currentExercise.getImage())  // set exercise image
 
 
-        restTimer = object : CountDownTimer(31000, 1000) {
+        restTimer = object : CountDownTimer(3100, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 31 - restProgress
