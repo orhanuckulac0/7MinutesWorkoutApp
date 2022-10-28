@@ -1,5 +1,6 @@
 package orhan.uckulac.a7minutesworkout
 
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -17,6 +18,7 @@ import kotlin.collections.ArrayList
 class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
     private var tts: TextToSpeech? = null
+    private var mediaPlayer: MediaPlayer? = null
 
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
@@ -57,6 +59,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
+        endOfExerciseSound()
         setupRestView()
     }
     private fun setupRestView(){
@@ -64,6 +67,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             restTimer?.cancel()
             restProgress = 0
         }
+        endOfExerciseSound()
         setRestProgressBar()
     }
 
@@ -128,7 +132,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun speakOut(text: String){
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "")
     }
 
     override fun onInit(status: Int) {
@@ -142,6 +146,15 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun endOfExerciseSound() {
+        try {
+            mediaPlayer = MediaPlayer.create(applicationContext, R.raw.press_start)
+            mediaPlayer?.isLooping = false
+            mediaPlayer?.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -150,11 +163,19 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             restProgress = 0
             currentExercisePosition = -1
         }
+
         // make sure to stop text to speech after app is closed
         if (tts != null){
             tts?.stop()
             tts?.shutdown()
         }
-        binding = null
+
+        // stop media player when app is closed
+        if (mediaPlayer != null) {
+            mediaPlayer?.stop()
+            mediaPlayer = null
+        }
+
+            binding = null
     }
 }
