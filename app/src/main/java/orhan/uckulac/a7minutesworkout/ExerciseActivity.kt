@@ -3,15 +3,20 @@ package orhan.uckulac.a7minutesworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import orhan.uckulac.a7minutesworkout.databinding.ActivityExerciseBinding
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
+    private var tts: TextToSpeech? = null
 
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
@@ -50,6 +55,8 @@ class ExerciseActivity : AppCompatActivity() {
 
         exerciseList = Constants.defaultExerciseList()  // get all the exercises from Constants
 
+        tts = TextToSpeech(this, this)
+
         setupRestView()
     }
     private fun setupRestView(){
@@ -72,7 +79,7 @@ class ExerciseActivity : AppCompatActivity() {
 
         tvNextExerciseName?.text = exerciseList!![currentExercisePosition].getName()
 
-        restTimer = object : CountDownTimer(1100, 1000) {
+        restTimer = object : CountDownTimer(11000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 11 - restProgress
@@ -99,8 +106,9 @@ class ExerciseActivity : AppCompatActivity() {
         tvTitle?.text = currentExercise.getName()  // use getter to get exercise name to display it
         ivExerciseImage?.setImageResource(currentExercise.getImage())  // set exercise image
 
+        speakOut(currentExercise.getName())  // speak out the exercise name when It's started
 
-        restTimer = object : CountDownTimer(3100, 1000) {
+        restTimer = object : CountDownTimer(31000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 31 - restProgress
@@ -109,13 +117,31 @@ class ExerciseActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 if (currentExercisePosition < exerciseList!!.size-1 ){
+                    speakOut("Rest for 10 seconds now.")
                     Toast.makeText(this@ExerciseActivity, "Rest 10 Seconds", Toast.LENGTH_LONG).show()
                     setupRestView()
                 }else
+                    speakOut("Congratulations! You have completed all the exercises!")
                     Toast.makeText(this@ExerciseActivity, "Congratulations! You have completed all the exercises!", Toast.LENGTH_LONG).show()
             }
         }.start()
     }
+
+    private fun speakOut(text: String){
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS){
+            val result = tts!!.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                Log.e("TTS", "The language specified is not supported!")
+            }else{
+                Log.e("TTS", "Initialization Failed!")
+            }
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -123,6 +149,11 @@ class ExerciseActivity : AppCompatActivity() {
             restTimer?.cancel()
             restProgress = 0
             currentExercisePosition = -1
+        }
+        // make sure to stop text to speech after app is closed
+        if (tts != null){
+            tts?.stop()
+            tts?.shutdown()
         }
         binding = null
     }
