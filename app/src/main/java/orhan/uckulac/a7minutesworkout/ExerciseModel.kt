@@ -32,15 +32,15 @@ class ExerciseModel (
     }
 
     // isCompleted getter and setter
-    fun setIsCompleted(): Boolean {
+    fun getIsCompleted(): Boolean {
         return isCompleted
     }
     fun setIsCompleted(isCompleted: Boolean){
         this.isCompleted = isCompleted
     }
 
-    // isSelected getter and setter
-    fun setIsSelected(): Boolean {
+    // getIsSelected getter and setter
+    fun getIsSelected(): Boolean {
         return isSelected
     }
     fun setIsSelected(isSelected: Boolean){
