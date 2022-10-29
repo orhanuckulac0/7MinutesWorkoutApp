@@ -19,4 +19,11 @@
         <item name="colorControlNormal">@color/toolbar_color_control_normal</item>
 
     </style>
+    <style name="Theme.7MinutesWorkout.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.7MinutesWorkout.AppBarOverlay"
+        parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.7MinutesWorkout.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

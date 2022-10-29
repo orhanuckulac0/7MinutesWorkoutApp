@@ -1,6 +1,6 @@
 package orhan.uckulac.a7minutesworkout
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import orhan.uckulac.a7minutesworkout.databinding.ActivityExerciseBinding
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 
 class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
@@ -24,6 +25,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var exerciseAdapter: ExerciseStatusAdapter? = null
 
     private var restTimer: CountDownTimer? = null
+    private var restTimerDuration: Long = 11000
+    private var exerciseTimerDuration: Long = 31000
     private var restProgress = 0
 
     var progressBar: ProgressBar? = null
@@ -95,7 +98,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tvNextExerciseName?.text = exerciseList!![currentExercisePosition].getName()
 
-        restTimer = object : CountDownTimer(11000, 1000) {
+        restTimer = object : CountDownTimer(restTimerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 11 - restProgress
@@ -127,14 +130,13 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         speakOut(currentExercise.getName())  // speak out the exercise name when It's started
 
-        restTimer = object : CountDownTimer(31000, 1000) {
+        restTimer = object : CountDownTimer(exerciseTimerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 31 - restProgress
                 tvTimer?.text = (31 - restProgress).toString()
             }
 
-            @SuppressLint("SuspiciousIndentation")
             override fun onFinish() {
                 exerciseList!![currentExercisePosition].setIsSelected(false)  // set the current exercise as as not selected
                 exerciseList!![currentExercisePosition].setIsCompleted(true)  // then make it completed
@@ -144,9 +146,15 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     speakOut("Rest for 10 seconds.")
                     Toast.makeText(this@ExerciseActivity, "Rest 10 Seconds", Toast.LENGTH_LONG).show()
                     setupRestView()
-                }else
-                    speakOut("Congratulations! You have completed all the exercises!")
-//                    Toast.makeText(this@ExerciseActivity, "Congratulations! You have completed all the exercises!", Toast.LENGTH_LONG).show()
+                }else if (currentExercisePosition == exerciseList!!.size - 1){
+                    speakOut("Congratulations!")
+                    // wait 3 secs for speak out to finish, then redirect to FinishActivity
+                    Timer().schedule(2000) {
+                        val intent = Intent(this@ExerciseActivity, FinishActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             }
         }.start()
     }
@@ -195,7 +203,6 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             mediaPlayer?.stop()
             mediaPlayer = null
         }
-
             binding = null
     }
 }
