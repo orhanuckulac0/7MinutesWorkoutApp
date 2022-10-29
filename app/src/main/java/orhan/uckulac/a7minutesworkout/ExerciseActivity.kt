@@ -1,5 +1,6 @@
 package orhan.uckulac.a7minutesworkout
 
+import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import orhan.uckulac.a7minutesworkout.databinding.ActivityExerciseBinding
 import java.util.*
 import kotlin.collections.ArrayList
@@ -19,6 +21,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var binding: ActivityExerciseBinding? = null
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var exerciseAdapter: ExerciseStatusAdapter? = null
 
     private var restTimer: CountDownTimer? = null
     private var restProgress = 0
@@ -29,6 +32,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     var ivExerciseImage: ImageView? = null
     var tvNextExerciseLabel: TextView? = null
     var tvNextExerciseName: TextView? = null
+
+
 
 
     private var exerciseList: ArrayList<ExerciseModel>? = null
@@ -58,10 +63,17 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         exerciseList = Constants.defaultExerciseList()  // get all the exercises from Constants
 
         tts = TextToSpeech(this, this)
-
-        endOfExerciseSound()
+        setupExerciseStatusRecyclerView()
         setupRestView()
     }
+
+    private fun setupExerciseStatusRecyclerView(){
+        binding?.rvExerciseStatus?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)  // create the adaptor
+        binding?.rvExerciseStatus?.adapter = exerciseAdapter  // assign the adapter to the recycler view
+    }
+
+
     private fun setupRestView(){
         if (restTimer != null){
             restTimer?.cancel()
@@ -119,14 +131,15 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 tvTimer?.text = (31 - restProgress).toString()
             }
 
+            @SuppressLint("SuspiciousIndentation")
             override fun onFinish() {
                 if (currentExercisePosition < exerciseList!!.size-1 ){
-                    speakOut("Rest for 10 seconds now.")
+                    speakOut("Rest for 10 seconds.")
                     Toast.makeText(this@ExerciseActivity, "Rest 10 Seconds", Toast.LENGTH_LONG).show()
                     setupRestView()
                 }else
                     speakOut("Congratulations! You have completed all the exercises!")
-                    Toast.makeText(this@ExerciseActivity, "Congratulations! You have completed all the exercises!", Toast.LENGTH_LONG).show()
+//                    Toast.makeText(this@ExerciseActivity, "Congratulations! You have completed all the exercises!", Toast.LENGTH_LONG).show()
             }
         }.start()
     }
