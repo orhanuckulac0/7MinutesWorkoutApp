@@ -1,5 +1,7 @@
 package orhan.uckulac.a7minutesworkout
 
+import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import orhan.uckulac.a7minutesworkout.databinding.ActivityExerciseBinding
+import orhan.uckulac.a7minutesworkout.databinding.DialogCustomBackConfirmationBinding
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
@@ -35,9 +38,6 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     var ivExerciseImage: ImageView? = null
     var tvNextExerciseLabel: TextView? = null
     var tvNextExerciseName: TextView? = null
-
-
-
 
     private var exerciseList: ArrayList<ExerciseModel>? = null
     private var currentExercisePosition = -1  // when increment, it will be 0 which is the starting index of the ArrayList
@@ -103,9 +103,10 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 restProgress++
                 progressBar?.progress = 11 - restProgress
                 tvTimer?.text = (11 - restProgress).toString()
-                tvTitle?.text = "Get Ready!"
+                tvTitle?.text = getString(R.string.get_ready_text)
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             override fun onFinish() {
                 restProgress = 0
                 exerciseList!![currentExercisePosition].setIsSelected(true)  // set the current exercise as selected to show on recycler view
@@ -137,6 +138,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 tvTimer?.text = (31 - restProgress).toString()
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             override fun onFinish() {
                 exerciseList!![currentExercisePosition].setIsSelected(false)  // set the current exercise as as not selected
                 exerciseList!![currentExercisePosition].setIsCompleted(true)  // then make it completed
@@ -182,6 +184,27 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun customDialogForBackButton() {
+        val customDialog = Dialog(this)
+        val dialogBinding = DialogCustomBackConfirmationBinding.inflate(layoutInflater)
+        customDialog.setContentView(dialogBinding.root)
+        customDialog.setCanceledOnTouchOutside(false)
+        dialogBinding.tvYes.setOnClickListener {
+            this@ExerciseActivity.finish()
+            customDialog.dismiss() // Dialog will be dismissed
+        }
+
+        dialogBinding.tvNo.setOnClickListener {
+            customDialog.dismiss()
+        }
+        //Start the dialog and display it on screen.
+        customDialog.show()
+    }
+
+    override fun onBackPressed() {
+        customDialogForBackButton()
     }
 
     override fun onDestroy() {
