@@ -27,9 +27,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var mediaPlayer: MediaPlayer? = null
     private var exerciseAdapter: ExerciseStatusAdapter? = null
 
-    private var restTimer: CountDownTimer? = null
-    private var restTimerDuration: Long = 11000
-    private var exerciseTimerDuration: Long = 31000
+    private var timer: CountDownTimer? = null
+    private var restTimerDuration: Long = 10000
+    private var exerciseTimerDuration: Long = 30000
     private var restProgress = 0
 
     var progressBar: ProgressBar? = null
@@ -78,8 +78,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     private fun setupRestView(){
-        if (restTimer != null){
-            restTimer?.cancel()
+        if (timer != null){
+            timer?.cancel()
             restProgress = 0
         }
         endOfExerciseSound()
@@ -88,7 +88,6 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun setRestProgressBar(){
         currentExercisePosition++  // increase current pos by 1 each turn
-
         progressBar?.progress = restProgress
         progressBar?.max = 10
 
@@ -98,12 +97,18 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tvNextExerciseName?.text = exerciseList!![currentExercisePosition].getName()
 
-        restTimer = object : CountDownTimer(restTimerDuration, 1000) {
+        timer = object : CountDownTimer(restTimerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 11 - restProgress
                 tvTimer?.text = (11 - restProgress).toString()
                 tvTitle?.text = getString(R.string.get_ready_text)
+
+                // if current progress, which is the timer text hits 0, cancel timer and initalize onFinish fun
+                if (11 - restProgress == 0 || 11 - restProgress < 0){
+                    timer?.cancel()
+                    onFinish()
+                }
             }
 
             @SuppressLint("NotifyDataSetChanged")
@@ -131,12 +136,17 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         speakOut(currentExercise.getName())  // speak out the exercise name when It's started
 
-        restTimer = object : CountDownTimer(exerciseTimerDuration, 1000) {
+        timer = object : CountDownTimer(exerciseTimerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 progressBar?.progress = 31 - restProgress
                 tvTimer?.text = (31 - restProgress).toString()
-            }
+
+                if (31 - restProgress == 0 || 31 - restProgress < 0){
+                    timer?.cancel()
+                    onFinish()
+                    }
+                }
 
             @SuppressLint("NotifyDataSetChanged")
             override fun onFinish() {
@@ -198,19 +208,21 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         dialogBinding.tvNo.setOnClickListener {
             customDialog.dismiss()
+            timer?.start()  // start the timer again
         }
         //Start the dialog and display it on screen.
         customDialog.show()
     }
 
     override fun onBackPressed() {
+        timer?.cancel()  // stop the timer when back is pressed
         customDialogForBackButton()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (restTimer != null){
-            restTimer?.cancel()
+        if (timer != null){
+            timer?.cancel()
             restProgress = 0
             currentExercisePosition = -1
         }
