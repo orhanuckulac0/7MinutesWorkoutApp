@@ -37,7 +37,6 @@ class BMIActivity : AppCompatActivity() {
             calculateBMI()
         }
 
-        makeVisibleMetricUnitsView()
         binding?.rgUnits?.setOnCheckedChangeListener { _, checkedId: Int ->  // will give the ID of the checked radio button
             if (checkedId == R.id.rbMetricUnits){
                 makeVisibleMetricUnitsView()
@@ -105,12 +104,14 @@ class BMIActivity : AppCompatActivity() {
 
     private fun validateMetricUnits(): Boolean{
         var isValid = true
+
         if (currentVisibleView == METRIC_UNITS_VIEW){
             if (binding?.etMetricUnitWeight?.text.toString().isEmpty()){
                 isValid = false
             }else if (binding?.etMetricUnitHeight?.text.toString().isEmpty()){
                 isValid = false
             }
+
         }else {
             if (currentVisibleView == US_UNITS_VIEW){
                 if (binding?.etMetricUnitPound?.text.toString().isEmpty()){
