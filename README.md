@@ -1,11 +1,11 @@
 
 # Project Title
 
-A 7 minute workout app which user rests 10 seconds and workouts 30 seconds for 14 rounds.
+A 7 minute workout app which user rests 10 seconds and workouts 30 seconds for 12 rounds.
 
 ## Features
 
-- 14 rounds of bodyweight exercises
+- 12 rounds of bodyweight exercises
 - BMI calculator for metric and US units
 - History of past exercises (Stored with Room database)
 ## Screenshots
