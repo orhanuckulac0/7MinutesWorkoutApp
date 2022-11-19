@@ -5,7 +5,7 @@ A 7 minute workout app which user rests 10 seconds and workouts 30 seconds for 1
 
 ## Features
 
-- 14 rounds of exercises
+- 14 rounds of bodyweight exercises
 - BMI calculator for metric and US units
 - History of past exercises (Stored with Room database)
 ## Screenshots
