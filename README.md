@@ -1,5 +1,5 @@
 
-# 7 Minutes Workout App
+# 7MinutesWorkoutApp
 
 A 7 minute workout app which user rests 10 seconds and workouts 30 seconds for 12 rounds.
 
